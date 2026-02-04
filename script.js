@@ -10,6 +10,10 @@ async function getWeatherByCity(city){
         if (!res.ok) throw new Error("City not found");
         const data = await res.json();
         displayWeather(data);
+
+        // SAVE CITY HERE
+        saveCity(data.name);
+
     }
     catch (error) {
         showError(error.message);
@@ -25,6 +29,10 @@ async function getWeatherByCoords(lat, lon) {
 
     const data = await res.json();
     displayWeather(data);
+
+    // SAVE CITY HERE
+    saveCity(data.name);
+
   } catch (error) {
     showError(error.message);
   }
@@ -78,4 +86,15 @@ locationBtn.addEventListener("click", () => {
     () => showError("Location access denied")
   );
 });
+
+// Save City
+
+function saveCity(city) {
+  let cities = JSON.parse(localStorage.getItem("cities")) || [];
+  if (!cities.includes(city)) {
+    cities.push(city);
+    localStorage.setItem("cities", JSON.stringify(cities));
+  }
+}
+
 
