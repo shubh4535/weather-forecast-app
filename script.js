@@ -15,10 +15,25 @@ async function getWeatherByCity(city){
         showError(error.message);
     }
 }
+async function getWeatherByCoords(lat, lon) {
+  try {
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
+    );
+
+    if (!res.ok) throw new Error("Unable to fetch location weather");
+
+    const data = await res.json();
+    displayWeather(data);
+  } catch (error) {
+    showError(error.message);
+  }
+}
 
 const cityInput = document.getElementById("cityInput");
 const weatherCard = document.getElementById("weatherCard");
 const errorMsg = document.getElementById("errorMsg");
+const locationBtn = document.getElementById("locationBtn");
 
 
 // Button Event
@@ -35,6 +50,7 @@ document.getElementById("searchBtn").addEventListener("click", ()=> {
 // Display Weather Data
 
 function displayWeather(data){
+    errorMsg.classList.add("hidden");
     weatherCard.classList.remove("hidden");
 
     weatherCard.innerHTML = `
@@ -49,4 +65,17 @@ function showError(msg) {
   errorMsg.textContent = msg;
   errorMsg.classList.remove("hidden");
 }
+
+
+// Current Location Button Event
+
+locationBtn.addEventListener("click", () => {
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      getWeatherByCoords(latitude, longitude);
+    },
+    () => showError("Location access denied")
+  );
+});
 
