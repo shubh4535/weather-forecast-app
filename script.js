@@ -1,5 +1,8 @@
 const API_KEY = "95219ab4844c9a53a98448897a670227";
 
+let isCelsius = true;
+let currentTempCelsius = null;
+
 // Fetched weather data based on city with API error handling
 
 async function getWeatherByCity(city){
@@ -9,6 +12,9 @@ async function getWeatherByCity(city){
         )
         if (!res.ok) throw new Error("City not found");
         const data = await res.json();
+        currentTempCelsius = data.main.temp;
+        isCelsius = true;
+
         displayWeather(data);
 
         // SAVE CITY HERE
@@ -28,6 +34,9 @@ async function getWeatherByCoords(lat, lon) {
     if (!res.ok) throw new Error("Unable to fetch location weather");
 
     const data = await res.json();
+    currentTempCelsius = data.main.temp;
+    isCelsius = true;
+
     displayWeather(data);
 
     // SAVE CITY HERE
@@ -63,7 +72,14 @@ function displayWeather(data){
 
     weatherCard.innerHTML = `
     <h2 class="text-xl font-semibold">${data.name}</h2>
-    <p> 🌡️ Temp: <span id="temp">${data.main.temp}</span> °C</p>
+    <p> 🌡️ Temp: 
+      <span id="temp">${data.main.temp}</span>
+      <span id="unit">°C</span>
+
+      <button onclick="toggleTemperature()" class="ml-2 text-blue-600 underline">
+        Toggle °C/°F
+      </button>
+    </p>
     <p>💧 Humidity: ${data.main.humidity}%</p>
     <p>💨 Wind: ${data.wind.speed} m/s</p>
     `;
@@ -94,6 +110,24 @@ function saveCity(city) {
   if (!cities.includes(city)) {
     cities.push(city);
     localStorage.setItem("cities", JSON.stringify(cities));
+  }
+}
+
+// Temperature  Toggle
+
+
+function toggleTemperature() {
+  const tempSpan = document.getElementById("temp");
+   const unitSpan = document.getElementById("unit");
+
+  if (isCelsius) {
+    tempSpan.textContent = ((currentTempCelsius * 9) / 5 + 32).toFixed(1);
+    unitSpan.textContent = "°F";
+    isCelsius = false;
+  } else {
+    tempSpan.textContent = currentTempCelsius.toFixed(1);
+    unitSpan.textContent = "°C";
+    isCelsius = true;
   }
 }
 
