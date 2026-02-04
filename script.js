@@ -16,6 +16,11 @@ async function getWeatherByCity(city){
     }
 }
 
+const cityInput = document.getElementById("cityInput");
+const weatherCard = document.getElementById("weatherCard");
+const errorMsg = document.getElementById("errorMsg");
+
+
 // Button Event
 
 document.getElementById("searchBtn").addEventListener("click", ()=> {
@@ -26,3 +31,22 @@ document.getElementById("searchBtn").addEventListener("click", ()=> {
     }
     getWeatherByCity(city);
 });
+
+// Display Weather Data
+
+function displayWeather(data){
+    weatherCard.classList.remove("hidden");
+
+    weatherCard.innerHTML = `
+    <h2 class="text-xl font-semibold">${data.name}</h2>
+    <p> 🌡️ Temp: <span id="temp">${data.main.temp}</span> °C</p>
+    <p>💧 Humidity: ${data.main.humidity}%</p>
+    <p>💨 Wind: ${data.wind.speed} m/s</p>
+    `;
+}
+
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorMsg.classList.remove("hidden");
+}
+
