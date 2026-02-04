@@ -17,6 +17,8 @@ async function getWeatherByCity(city){
 
         displayWeather(data);
         applyWeatherEffects(data);
+        getFiveDayForecast(data.coord.lat, data.coord.lon);
+
 
 
         // SAVE CITY HERE
@@ -41,6 +43,8 @@ async function getWeatherByCoords(lat, lon) {
 
     displayWeather(data);
     applyWeatherEffects(data);
+    getFiveDayForecast(data.coord.lat, data.coord.lon);
+
 
 
     // SAVE CITY HERE
@@ -153,4 +157,33 @@ function applyWeatherEffects(data) {
   }
 }
 
+async function getFiveDayForecast(lat, lon) {
+  const res = await fetch(
+    `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
+  );
+
+  const data = await res.json();
+  displayForecast(data.list);
+}
+
+const forecastContainer = document.getElementById("forecast");
+
+function displayForecast(list) {
+  forecastContainer.innerHTML = "";
+
+  const dailyData = list.filter(item =>
+    item.dt_txt.includes("12:00:00")
+  );
+
+  dailyData.forEach(day => {
+    forecastContainer.innerHTML += `
+      <div class="p-3 bg-white rounded shadow text-center">
+        <p class="font-semibold">${day.dt_txt.split(" ")[0]}</p>
+        <p>🌡️ ${day.main.temp} °C</p>
+        <p>💧 ${day.main.humidity}%</p>
+        <p>💨 ${day.wind.speed} m/s</p>
+      </div>
+    `;
+  });
+}
 
