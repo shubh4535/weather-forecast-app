@@ -3,32 +3,43 @@ const API_KEY = "95219ab4844c9a53a98448897a670227";
 let isCelsius = true;
 let currentTempCelsius = null;
 
-// Fetched weather data based on city with API error handling
+// DOM Elements
+const cityInput = document.getElementById("cityInput");
+const weatherCard = document.getElementById("weatherCard");
+const errorMsg = document.getElementById("errorMsg");
+const locationBtn = document.getElementById("locationBtn");
+const recentCitiesSelect = document.getElementById("recentCities");
 
-async function getWeatherByCity(city){
-    try {
-        const res = await fetch(
-           `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
-        )
-        if (!res.ok) throw new Error("City not found");
-        const data = await res.json();
-        currentTempCelsius = data.main.temp;
-        isCelsius = true;
+/* ============================
+   FETCH WEATHER BY CITY
+============================ */
 
-        displayWeather(data);
-        applyWeatherEffects(data);
-        getFiveDayForecast(data.coord.lat, data.coord.lon);
+async function getWeatherByCity(city) {
+  try {
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
+    );
 
+    if (!res.ok) throw new Error("City not found");
 
+    const data = await res.json();
+    currentTempCelsius = data.main.temp;
+    isCelsius = true;
 
-        // SAVE CITY HERE
-        saveCity(data.name);
+    displayWeather(data);
+    applyWeatherEffects(data);
 
-    }
-    catch (error) {
-        showError(error.message);
-    }
+    saveCity(data.name);
+    loadRecentCities();
+  } catch (error) {
+    showError(error.message);
+  }
 }
+
+/* ============================
+   FETCH WEATHER BY LOCATION
+============================ */
+
 async function getWeatherByCoords(lat, lon) {
   try {
     const res = await fetch(
@@ -43,64 +54,63 @@ async function getWeatherByCoords(lat, lon) {
 
     displayWeather(data);
     applyWeatherEffects(data);
-    getFiveDayForecast(data.coord.lat, data.coord.lon);
 
-
-
-    // SAVE CITY HERE
     saveCity(data.name);
-
+    loadRecentCities();
   } catch (error) {
     showError(error.message);
   }
 }
 
-const cityInput = document.getElementById("cityInput");
-const weatherCard = document.getElementById("weatherCard");
-const errorMsg = document.getElementById("errorMsg");
-const locationBtn = document.getElementById("locationBtn");
+/* ============================
+   SEARCH BUTTON
+============================ */
 
-
-// Button Event
-
-document.getElementById("searchBtn").addEventListener("click", ()=> {
-    const city = cityInput.value.trim();
-    if(!city) {
-        showError("Please enter a city name");
-        return;
-    }
-    getWeatherByCity(city);
+document.getElementById("searchBtn").addEventListener("click", () => {
+  const city = cityInput.value.trim();
+  if (!city) {
+    showError("Please enter a city name");
+    return;
+  }
+  getWeatherByCity(city);
 });
 
-// Display Weather Data
+/* ============================
+   DISPLAY WEATHER
+============================ */
 
-function displayWeather(data){
-    errorMsg.classList.add("hidden");
-    weatherCard.classList.remove("hidden");
+function displayWeather(data) {
+  errorMsg.classList.add("hidden");
+  weatherCard.classList.remove("hidden");
 
-    weatherCard.innerHTML = `
+  weatherCard.innerHTML = `
     <h2 class="text-xl font-semibold">${data.name}</h2>
-    <p> 🌡️ Temp: 
-      <span id="temp">${data.main.temp}</span>
+    <p>
+      🌡️ Temp:
+      <span id="temp">${data.main.temp.toFixed(1)}</span>
       <span id="unit">°C</span>
-
       <button onclick="toggleTemperature()" class="ml-2 text-blue-600 underline">
         Toggle °C/°F
       </button>
     </p>
     <p>💧 Humidity: ${data.main.humidity}%</p>
     <p>💨 Wind: ${data.wind.speed} m/s</p>
-    `;
+  `;
 }
-// Show Error Message
+
+/* ============================
+   ERROR HANDLER
+============================ */
+
 function showError(msg) {
   weatherCard.classList.add("hidden");
   errorMsg.textContent = msg;
   errorMsg.classList.remove("hidden");
 }
 
-
-// Current Location Button Event
+/* ============================
+   LOCATION BUTTON
+============================ */
 
 locationBtn.addEventListener("click", () => {
   navigator.geolocation.getCurrentPosition(
@@ -112,7 +122,9 @@ locationBtn.addEventListener("click", () => {
   );
 });
 
-// Save City
+/* ============================
+   SAVE & LOAD RECENT CITIES
+============================ */
 
 function saveCity(city) {
   let cities = JSON.parse(localStorage.getItem("cities")) || [];
@@ -122,12 +134,36 @@ function saveCity(city) {
   }
 }
 
-// Temperature  Toggle
+function loadRecentCities() {
+  const cities = JSON.parse(localStorage.getItem("cities")) || [];
+  if (cities.length === 0) return;
 
+  recentCitiesSelect.innerHTML =
+    `<option value="">Recent searches</option>`;
+
+  cities.forEach(city => {
+    const option = document.createElement("option");
+    option.value = city;
+    option.textContent = city;
+    recentCitiesSelect.appendChild(option);
+  });
+
+  recentCitiesSelect.classList.remove("hidden");
+}
+
+recentCitiesSelect.addEventListener("change", () => {
+  if (recentCitiesSelect.value) {
+    getWeatherByCity(recentCitiesSelect.value);
+  }
+});
+
+/* ============================
+   TEMPERATURE TOGGLE
+============================ */
 
 function toggleTemperature() {
   const tempSpan = document.getElementById("temp");
-   const unitSpan = document.getElementById("unit");
+  const unitSpan = document.getElementById("unit");
 
   if (isCelsius) {
     tempSpan.textContent = ((currentTempCelsius * 9) / 5 + 32).toFixed(1);
@@ -140,7 +176,9 @@ function toggleTemperature() {
   }
 }
 
-//  Weather Alerts
+/* ============================
+   WEATHER EFFECTS
+============================ */
 
 function applyWeatherEffects(data) {
   document.body.className = "";
@@ -160,36 +198,8 @@ function applyWeatherEffects(data) {
   }
 }
 
-// Five  day Forecast
+/* ============================
+   INIT
+============================ */
 
-async function getFiveDayForecast(lat, lon) {
-  const res = await fetch(
-    `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
-  );
-
-  const data = await res.json();
-  displayForecast(data.list);
-}
-
-const forecastContainer = document.getElementById("forecast");
-
-// Display Forecast
-function displayForecast(list) {
-  forecastContainer.innerHTML = "";
-
-  const dailyData = list.filter(item =>
-    item.dt_txt.includes("12:00:00")
-  );
-
-  dailyData.forEach(day => {
-    forecastContainer.innerHTML += `
-      <div class="p-3 bg-white rounded shadow text-center">
-        <p class="font-semibold">${day.dt_txt.split(" ")[0]}</p>
-        <p>🌡️ ${day.main.temp} °C</p>
-        <p>💧 ${day.main.humidity}%</p>
-        <p>💨 ${day.wind.speed} m/s</p>
-      </div>
-    `;
-  });
-}
-
+loadRecentCities();
