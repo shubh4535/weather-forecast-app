@@ -16,6 +16,8 @@ async function getWeatherByCity(city){
         isCelsius = true;
 
         displayWeather(data);
+        applyWeatherEffects(data);
+
 
         // SAVE CITY HERE
         saveCity(data.name);
@@ -38,6 +40,8 @@ async function getWeatherByCoords(lat, lon) {
     isCelsius = true;
 
     displayWeather(data);
+    applyWeatherEffects(data);
+
 
     // SAVE CITY HERE
     saveCity(data.name);
@@ -128,6 +132,24 @@ function toggleTemperature() {
     tempSpan.textContent = currentTempCelsius.toFixed(1);
     unitSpan.textContent = "°C";
     isCelsius = true;
+  }
+}
+
+function applyWeatherEffects(data) {
+  document.body.className = "";
+
+  if (data.main.temp > 40) {
+    showError("⚠️ Extreme heat alert!");
+  }
+
+  const condition = data.weather[0].main;
+
+  if (condition === "Rain") {
+    document.body.classList.add("bg-gray-700");
+  } else if (condition === "Clear") {
+    document.body.classList.add("bg-blue-200");
+  } else if (condition === "Clouds") {
+    document.body.classList.add("bg-gray-300");
   }
 }
 
