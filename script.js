@@ -92,8 +92,9 @@ function displayWeather(data){
     <p>💨 Wind: ${data.wind.speed} m/s</p>
     `;
 }
-
+// Show Error Message
 function showError(msg) {
+  weatherCard.classList.add("hidden");
   errorMsg.textContent = msg;
   errorMsg.classList.remove("hidden");
 }
@@ -139,6 +140,8 @@ function toggleTemperature() {
   }
 }
 
+//  Weather Alerts
+
 function applyWeatherEffects(data) {
   document.body.className = "";
 
@@ -157,6 +160,8 @@ function applyWeatherEffects(data) {
   }
 }
 
+// Five  day Forecast
+
 async function getFiveDayForecast(lat, lon) {
   const res = await fetch(
     `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
@@ -168,6 +173,7 @@ async function getFiveDayForecast(lat, lon) {
 
 const forecastContainer = document.getElementById("forecast");
 
+// Display Forecast
 function displayForecast(list) {
   forecastContainer.innerHTML = "";
 
