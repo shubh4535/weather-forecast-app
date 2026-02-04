@@ -1,5 +1,7 @@
 const API_KEY = "95219ab4844c9a53a98448897a670227";
 
+// Fetched weather data based on city with API error handling
+
 async function getWeatherByCity(city){
     try {
         const res = await fetch(
@@ -13,3 +15,14 @@ async function getWeatherByCity(city){
         showError(error.message);
     }
 }
+
+// Button Event
+
+document.getElementById("searchBtn").addEventListener("click", ()=> {
+    const city = cityInput.value.trim();
+    if(!city) {
+        showError("Please enter a city name");
+        return;
+    }
+    getWeatherByCity(city);
+});
