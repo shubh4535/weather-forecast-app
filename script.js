@@ -78,25 +78,60 @@ document.getElementById("searchBtn").addEventListener("click", () => {
 });
 
 /* ============================
-   DISPLAY WEATHER
+   DISPLAY WEATHER (Improved UI)
 ============================ */
 
 function displayWeather(data) {
   errorMsg.classList.add("hidden");
   weatherCard.classList.remove("hidden");
 
+  const icon = data.weather[0].icon;
+
+  weatherCard.className =
+    "mt-6 bg-white/80 backdrop-blur-lg p-6 rounded-3xl shadow-xl text-center max-w-md mx-auto transition transform hover:scale-105";
+
   weatherCard.innerHTML = `
-    <h2 class="text-xl font-semibold">${data.name}</h2>
-    <p>
-      🌡️ Temp:
+    <h2 class="text-2xl font-bold mb-2">${data.name}</h2>
+
+    <img 
+      src="https://openweathermap.org/img/wn/${icon}@4x.png"
+      alt="weather icon"
+      class="mx-auto w-24 h-24"
+    />
+
+    <p class="text-4xl font-extrabold my-2">
       <span id="temp">${data.main.temp.toFixed(1)}</span>
       <span id="unit">°C</span>
-      <button onclick="toggleTemperature()" class="ml-2 text-blue-600 underline">
-        Toggle °C/°F
-      </button>
     </p>
-    <p>💧 Humidity: ${data.main.humidity}%</p>
-    <p>💨 Wind: ${data.wind.speed} m/s</p>
+
+    <button 
+      onclick="toggleTemperature()" 
+      class="text-blue-600 underline text-sm mb-4"
+    >
+      Toggle °C / °F
+    </button>
+
+    <div class="grid grid-cols-2 gap-4 text-sm mt-4">
+      <div class="bg-white p-3 rounded-xl shadow">
+        <p class="text-gray-500">Condition</p>
+        <p class="font-semibold">${data.weather[0].main}</p>
+      </div>
+
+      <div class="bg-white p-3 rounded-xl shadow">
+        <p class="text-gray-500">Humidity</p>
+        <p class="font-semibold">${data.main.humidity}%</p>
+      </div>
+
+      <div class="bg-white p-3 rounded-xl shadow">
+        <p class="text-gray-500">Wind Speed</p>
+        <p class="font-semibold">${data.wind.speed} m/s</p>
+      </div>
+
+      <div class="bg-white p-3 rounded-xl shadow">
+        <p class="text-gray-500">Feels Like</p>
+        <p class="font-semibold">${data.main.feels_like.toFixed(1)}°C</p>
+      </div>
+    </div>
   `;
 }
 
